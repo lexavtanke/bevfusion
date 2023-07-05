@@ -62,12 +62,12 @@ def main():
         if cfg.deterministic:
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
-
-    # datasets = [build_dataset(cfg.data.train)]
-    # print("dataset builded")
-    print('build model start')
+    print("start dataset building")
+    datasets = [build_dataset(cfg.data.train)]
+    print("finish dataset building")
+    print('start building model')
     model = build_model(cfg.model)
-    print('build model finish')
+    print('finish building model')
 
     model.init_weights()
     print('model weights inited')
@@ -77,6 +77,15 @@ def main():
         model = convert_sync_batchnorm(model, exclude=cfg["sync_bn"]["exclude"])
 
     logger.info(f"Model:\n{model}")
+
+    train_model(
+        model,
+        datasets,
+        cfg,
+        distributed=True,
+        validate=True,
+        timestamp=timestamp,
+    )
 
 
 if __name__ == "__main__":
